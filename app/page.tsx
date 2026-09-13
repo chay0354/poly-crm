@@ -78,6 +78,7 @@ function Dash({ d }: { d: Summary }) {
               <div className="fill" style={{ margin: "8px 0 10px" }}>
                 {last.when} · עלות ${last.cost.toFixed(2)} · Up {last.up_shares.toFixed(2)} / Down{" "}
                 {last.down_shares.toFixed(2)} · {last.paired ? "זוג נעול" : "לא מאוזן"}
+                {last.gamma ? " · לפי Polymarket" : ""}
               </div>
               <div className="fill">
                 {(d.last_fills || []).length
@@ -122,7 +123,7 @@ function Dash({ d }: { d: Summary }) {
                 <td>
                   {w.up_shares.toFixed(1)} / {w.down_shares.toFixed(1)}
                 </td>
-                <td>{w.paired ? "זוג" : "צד אחד"}</td>
+                <td>{w.paired ? "זוג" : w.gamma ? "צד אחד · Gamma" : "צד אחד"}</td>
               </tr>
             ))}
           </tbody>

@@ -21,6 +21,8 @@ export type WindowRow = {
   paired: boolean;
   strategies: string[];
   up_won: boolean | null;
+  /** True when PnL was rewritten from Polymarket's official book, not the bot TWAP. */
+  gamma: boolean;
 };
 
 export type Summary = {
@@ -93,6 +95,7 @@ function shape(row: Record<string, unknown>): WindowRow {
     paired: Math.abs(up - dn) < 0.5 && Math.min(up, dn) > 0.01,
     strategies: (row.strategies as string[]) || [],
     up_won: (row.up_won as boolean | null) ?? null,
+    gamma: Boolean(row.gamma),
   };
 }
 
