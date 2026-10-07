@@ -13,9 +13,14 @@ export const revalidate = 0;
 const BATCH = 6;
 const MAX_CHECK = 24;
 
+function stillOpen(row: Record<string, unknown>) {
+  return row.result === "open" || row.estimated_pnl == null || row.up_won == null;
+}
+
 async function settleFromGamma(rows: Record<string, unknown>[]) {
   const candidates = rows
     .filter((r) => needsOfficialWinner(Number(r.up_shares || 0), Number(r.down_shares || 0)))
+    .sort((a, b) => Number(stillOpen(b)) - Number(stillOpen(a)))
     .slice(0, MAX_CHECK);
   const patches: { slug: string; fields: ReturnType<typeof applyOfficial> }[] = [];
   for (let i = 0; i < candidates.length; i += BATCH) {
@@ -32,7 +37,8 @@ async function settleFromGamma(rows: Record<string, unknown>[]) {
       }),
     );
     for (const { row, winner } of winners) {
-      if (winner == null || winner === row.up_won) continue;
+      if (winner == null) continue;
+      if (winner === row.up_won && !stillOpen(row)) continue;
       const fields = applyOfficial(row, winner);
       Object.assign(row, fields, { gamma: true });
       patches.push({ slug: String(row.window_slug), fields });
